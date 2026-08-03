@@ -1,5 +1,4 @@
 """Drop and recreate all tables, then seed a small set of products.
-
 Orders are left for the API to create — seeding orders here would bypass the
 stock-decrement logic the API exists to enforce.
 """
@@ -11,6 +10,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.database import Base, SessionLocal, engine
 from app.models import Product
+
+try:
+    from faker import Faker
+except ImportError:  # pragma: no cover - optional dependency guard
+    Faker = None
 
 PRODUCTS = [
     {"name": "Wireless Mouse", "price": 24.99, "stock_qty": 50},
@@ -33,7 +37,10 @@ def seed():
     finally:
         db.close()
 
-    print(f"Seeded {len(PRODUCTS)} products.")
+    if Faker is not None:
+        print("Seeded sample products. Install faker to generate richer demo data.")
+    else:
+        print(f"Seeded {len(PRODUCTS)} products.")
 
 
 if __name__ == "__main__":
