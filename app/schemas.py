@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from app.models import OrderStatus, PurchaseOrderStatus, QuoteStatus, SupportStatus, UserRole
+from app.models import OrderStatus, PaymentStatus, PurchaseOrderStatus, QuoteStatus, SupportStatus, UserRole
 
 
 class ProductCreate(BaseModel):
@@ -17,6 +17,10 @@ class ProductUpdate(BaseModel):
     category: str | None = None
     price: float | None = Field(default=None, gt=0)
     stock_qty: int | None = Field(default=None, ge=0)
+
+
+class ProductRestock(BaseModel):
+    quantity: int = Field(gt=0, description="units to add to current stock")
 
 
 class ProductOut(BaseModel):
@@ -79,6 +83,13 @@ class CustomerLoginRequest(BaseModel):
     password: str = Field(min_length=1)
 
 
+class CustomerAuthOut(CustomerOut):
+    """CustomerOut plus a session token — returned by signup and login only."""
+
+    access_token: str
+    token_type: str = "bearer"
+
+
 class DeliveryAddressCreate(BaseModel):
     label: str = Field(min_length=1, max_length=60)
     address: str = Field(min_length=1, max_length=255)
@@ -127,12 +138,20 @@ class OrderOut(BaseModel):
     po_reference: str | None = None
     created_at: datetime
     status: OrderStatus
+    payment_status: PaymentStatus
     items: list[OrderItemOut]
     total: float
+    tax_amount: float
+    shipping_fee: float
+    grand_total: float
 
 
 class OrderStatusUpdate(BaseModel):
     status: OrderStatus
+
+
+class OrderPaymentStatusUpdate(BaseModel):
+    payment_status: PaymentStatus
 
 
 # --- Quotes --------------------------------------------------------------
@@ -264,6 +283,25 @@ class NotificationOut(BaseModel):
     created_at: datetime
 
 
+# --- Favorites (saved product lists) --------------------------------------
+
+class FavoriteCreate(BaseModel):
+    customer_id: int
+    product_id: int
+    list_name: str = Field(default="Favorites", min_length=1, max_length=60)
+
+
+class FavoriteOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    customer_id: int
+    product_id: int
+    product_name: str
+    list_name: str
+    created_at: datetime
+
+
 # --- Admin/staff users ---------------------------------------------------
 
 class UserCreate(BaseModel):
@@ -289,6 +327,8 @@ class LoginResponse(BaseModel):
     id: int
     email: str
     role: UserRole
+    access_token: str
+    token_type: str = "bearer"
 
 
 class PasswordChange(BaseModel):

@@ -31,9 +31,19 @@ def client():
 
 
 @pytest.fixture()
-def make_product(client):
+def admin_headers(client):
+    client.post("/users", json={"email": "admin@test.com", "password": "adminpass123", "role": "admin"})
+    resp = client.post("/auth/login", json={"email": "admin@test.com", "password": "adminpass123"})
+    assert resp.status_code == 200
+    return {"Authorization": f"Bearer {resp.json()['access_token']}"}
+
+
+@pytest.fixture()
+def make_product(client, admin_headers):
     def _make(name="Widget", price=10.0, stock_qty=5):
-        resp = client.post("/products", json={"name": name, "price": price, "stock_qty": stock_qty})
+        resp = client.post(
+            "/products", json={"name": name, "price": price, "stock_qty": stock_qty}, headers=admin_headers
+        )
         assert resp.status_code == 201
         return resp.json()
 

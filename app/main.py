@@ -5,6 +5,7 @@ from app.routers import (
     addresses,
     categories,
     customers,
+    favorites,
     notifications,
     orders,
     products,
@@ -32,6 +33,7 @@ app.include_router(support.router)
 app.include_router(notifications.router)
 app.include_router(users.router)
 app.include_router(reports.router)
+app.include_router(favorites.router)
 
 
 @app.get("/")

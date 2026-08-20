@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_user
 from app.database import get_db
 from app.models import Category
 from app.schemas import CategoryCreate, CategoryOut
@@ -15,7 +16,7 @@ def list_categories(db: Session = Depends(get_db)):
     return db.execute(select(Category).order_by(Category.name)).scalars().all()
 
 
-@router.post("", response_model=CategoryOut, status_code=201)
+@router.post("", response_model=CategoryOut, status_code=201, dependencies=[Depends(get_current_user)])
 def create_category(payload: CategoryCreate, db: Session = Depends(get_db)):
     category = Category(name=payload.name)
     db.add(category)
@@ -28,7 +29,7 @@ def create_category(payload: CategoryCreate, db: Session = Depends(get_db)):
     return category
 
 
-@router.delete("/{category_id}", status_code=204)
+@router.delete("/{category_id}", status_code=204, dependencies=[Depends(get_current_user)])
 def delete_category(category_id: int, db: Session = Depends(get_db)):
     category = db.get(Category, category_id)
     if category is None:

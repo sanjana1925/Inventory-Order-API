@@ -4,11 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
+from app.auth import get_current_user
 from app.database import get_db
 from app.models import PurchaseOrder, PurchaseOrderItem, PurchaseOrderStatus, Supplier
 from app.schemas import PurchaseOrderCreate, PurchaseOrderItemOut, PurchaseOrderOut
 
-router = APIRouter(prefix="/purchase-orders", tags=["purchase-orders"])
+router = APIRouter(prefix="/purchase-orders", tags=["purchase-orders"], dependencies=[Depends(get_current_user)])
 
 
 def _serialize(po: PurchaseOrder) -> PurchaseOrderOut:

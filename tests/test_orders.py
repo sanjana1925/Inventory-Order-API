@@ -109,7 +109,7 @@ def test_cancel_unknown_order_is_404(client):
     assert resp.status_code == 404
 
 
-def test_price_change_does_not_affect_past_order_total(client, make_product):
+def test_price_change_does_not_affect_past_order_total(client, make_product, admin_headers):
     product = make_product(price=10.0, stock_qty=10)
     order = client.post(
         "/orders",
@@ -117,7 +117,7 @@ def test_price_change_does_not_affect_past_order_total(client, make_product):
     ).json()
     assert order["total"] == 20.0
 
-    client.put(f"/products/{product['id']}", json={"price": 50.0})
+    client.put(f"/products/{product['id']}", json={"price": 50.0}, headers=admin_headers)
 
     resp = client.get(f"/orders/{order['id']}")
     assert resp.json()["total"] == 20.0

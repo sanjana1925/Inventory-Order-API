@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.auth import create_access_token, get_current_user
 from app.database import get_db
 from app.models import User
 from app.schemas import LoginRequest, LoginResponse, PasswordChange, UserCreate, UserOut
@@ -16,10 +17,11 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     user = db.execute(select(User).where(User.email == payload.email)).scalar_one_or_none()
     if user is None or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password")
-    return user
+    token = create_access_token(subject=user.id, kind="user", role=user.role.value)
+    return LoginResponse(id=user.id, email=user.email, role=user.role, access_token=token)
 
 
-@router.get("/users", response_model=list[UserOut])
+@router.get("/users", response_model=list[UserOut], dependencies=[Depends(get_current_user)])
 def list_users(db: Session = Depends(get_db)):
     return db.execute(select(User).order_by(User.email)).scalars().all()
 
@@ -37,7 +39,7 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db)):
     return user
 
 
-@router.patch("/users/{user_id}/password", response_model=UserOut)
+@router.patch("/users/{user_id}/password", response_model=UserOut, dependencies=[Depends(get_current_user)])
 def change_password(user_id: int, payload: PasswordChange, db: Session = Depends(get_db)):
     user = db.get(User, user_id)
     if user is None:
@@ -50,7 +52,7 @@ def change_password(user_id: int, payload: PasswordChange, db: Session = Depends
     return user
 
 
-@router.delete("/users/{user_id}", status_code=204)
+@router.delete("/users/{user_id}", status_code=204, dependencies=[Depends(get_current_user)])
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     user = db.get(User, user_id)
     if user is None:

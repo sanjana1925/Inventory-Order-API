@@ -1,5 +1,5 @@
-def test_create_and_get_product(client):
-    resp = client.post("/products", json={"name": "Widget", "price": 9.99, "stock_qty": 20})
+def test_create_and_get_product(client, admin_headers):
+    resp = client.post("/products", json={"name": "Widget", "price": 9.99, "stock_qty": 20}, headers=admin_headers)
     assert resp.status_code == 201
     product = resp.json()
 
@@ -13,17 +13,17 @@ def test_get_unknown_product_is_404(client):
     assert resp.status_code == 404
 
 
-def test_update_product(client, make_product):
+def test_update_product(client, make_product, admin_headers):
     product = make_product(stock_qty=20)
-    resp = client.put(f"/products/{product['id']}", json={"stock_qty": 99})
+    resp = client.put(f"/products/{product['id']}", json={"stock_qty": 99}, headers=admin_headers)
     assert resp.status_code == 200
     assert resp.json()["stock_qty"] == 99
     assert resp.json()["name"] == product["name"]
 
 
-def test_delete_product(client, make_product):
+def test_delete_product(client, make_product, admin_headers):
     product = make_product()
-    resp = client.delete(f"/products/{product['id']}")
+    resp = client.delete(f"/products/{product['id']}", headers=admin_headers)
     assert resp.status_code == 204
     assert client.get(f"/products/{product['id']}").status_code == 404
 
@@ -39,6 +39,6 @@ def test_low_stock_view_filters_by_threshold(client, make_product):
     assert "High" not in names
 
 
-def test_create_product_rejects_negative_price(client):
-    resp = client.post("/products", json={"name": "Bad", "price": -5, "stock_qty": 1})
+def test_create_product_rejects_negative_price(client, admin_headers):
+    resp = client.post("/products", json={"name": "Bad", "price": -5, "stock_qty": 1}, headers=admin_headers)
     assert resp.status_code == 422

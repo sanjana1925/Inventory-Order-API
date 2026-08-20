@@ -1,7 +1,7 @@
 import enum
 from datetime import datetime
 
-from sqlalchemy import DateTime, Enum, Float, ForeignKey, Integer, String
+from sqlalchemy import DateTime, Enum, Float, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -37,6 +37,11 @@ class UserRole(str, enum.Enum):
 class SupportStatus(str, enum.Enum):
     OPEN = "open"
     CLOSED = "closed"
+
+
+class PaymentStatus(str, enum.Enum):
+    UNPAID = "unpaid"
+    PAID = "paid"
 
 
 class Category(Base):
@@ -92,6 +97,13 @@ class Order(Base):
     status: Mapped[OrderStatus] = mapped_column(
         Enum(OrderStatus), nullable=False, default=OrderStatus.PENDING, index=True
     )
+    payment_status: Mapped[PaymentStatus] = mapped_column(
+        Enum(PaymentStatus), nullable=False, default=PaymentStatus.UNPAID
+    )
+    # Computed once at order time (not live off current rates), same reasoning
+    # as unit_price on OrderItem: a past invoice shouldn't reprice itself.
+    tax_amount: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    shipping_fee: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
 
     items: Mapped[list["OrderItem"]] = relationship(
         back_populates="order", cascade="all, delete-orphan"
@@ -204,6 +216,23 @@ class Notification(Base):
     level: Mapped[str] = mapped_column(String(20), nullable=False, default="info")  # info | warning | critical
     order_id: Mapped[int | None] = mapped_column(ForeignKey("orders.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class Favorite(Base):
+    """A customer's saved product, grouped by a free-text list_name (e.g.
+    'Monthly restock') — same denormalized-string convention as
+    Product.category, not a separate FavoriteList table."""
+
+    __tablename__ = "favorites"
+    __table_args__ = (UniqueConstraint("customer_id", "product_id", "list_name", name="uq_favorite_customer_product_list"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    customer_id: Mapped[int] = mapped_column(ForeignKey("customers.id"), nullable=False, index=True)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False, index=True)
+    list_name: Mapped[str] = mapped_column(String(60), nullable=False, default="Favorites")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+    product: Mapped["Product"] = relationship()
 
 
 class User(Base):

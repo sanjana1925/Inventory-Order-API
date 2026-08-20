@@ -8,8 +8,9 @@ and the conventions to follow when changing code.
 ## Stack
 
 FastAPI + SQLAlchemy 2.0 (`Mapped`/`mapped_column` style) + SQLite, Pydantic v2 schemas,
-pytest, Streamlit for the UI. No auth/session layer — see "Known limitations" in the README
-before adding anything that assumes one.
+pytest, JWT session tokens (PyJWT), and a React + Vite + Tailwind CSS frontend in
+`frontend/`. Only staff/admin actions are server-side authorized — see "Known
+limitations" in the README before adding anything that assumes customer-side auth too.
 
 ## Running
 
@@ -18,8 +19,8 @@ venv\Scripts\activate
 pip install -r requirements.txt
 python scripts/seed_big_dataset.py     # or scripts/seed.py for a minimal seed
 uvicorn app.main:app --reload          # API on :8000
-streamlit run app/streamlit_app.py     # UI on :8501, needs the API running
-pytest                                  # 37 tests, in-memory SQLite, no seed needed
+cd frontend && npm install && npm run dev   # UI on :5173, needs the API running
+pytest                                  # 33 tests, in-memory SQLite, no seed needed
 ```
 
 ## Layout
@@ -32,10 +33,14 @@ pytest                                  # 37 tests, in-memory SQLite, no seed ne
   than growing an existing router or introducing a new layer.
 - `app/security.py` — password hashing (PBKDF2) and the order-status transition table
   (`can_transition`). Not an auth/session module despite the name.
+- `app/auth.py` — JWT session tokens: `create_access_token()` and the `get_current_user`
+  dependency used to gate staff/admin-only routes (`dependencies=[Depends(get_current_user)]`).
 - `app/activity.py` — `notify()`, the one function that writes to `notifications`.
+- `app/notifications_channel.py` — `send_email()`/`send_sms()` stand-ins that print instead
+  of calling a real provider (no external credentials needed to demo the flow).
 - `app/invoice.py` — PDF generation for `GET /orders/{id}/invoice` (fpdf2).
-- `app/frontend_helpers.py` — pure functions shared by `streamlit_app.py` (formatting,
-  small calculations) so they're unit-testable without spinning up Streamlit.
+- `frontend/` — the React/Tailwind UI, entirely separate build/runtime from `app/`. Plain
+  JS (no TypeScript), hooks only, no state-management or chart libraries — keep it that way.
 - `scripts/seed.py` / `scripts/seed_big_dataset.py` — both drop and recreate all tables.
 
 ## Conventions to match
@@ -76,6 +81,7 @@ before considering a change done — it's fast (~2s).
 
 ## Known gaps (see README for full list)
 
-No server-side auth — every endpoint is open regardless of role. Don't add UI-only access
-checks to `streamlit_app.py` and consider that "secured"; if a change needs real
-authorization, it has to happen in the API layer, which doesn't exist yet.
+Only staff/admin routes are gated (`Depends(get_current_user)` in `app/auth.py`).
+Customer-facing routes aren't gated by customer identity — don't add frontend-only access
+checks to `frontend/` and consider that "secured"; if a change needs real per-customer
+authorization, it has to happen in the API layer, which doesn't exist yet for that side.

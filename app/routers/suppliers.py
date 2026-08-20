@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_user
 from app.database import get_db
 from app.models import Supplier
 from app.schemas import SupplierCreate, SupplierOut
@@ -28,7 +29,7 @@ def list_suppliers(
     return rows
 
 
-@router.post("", response_model=SupplierOut, status_code=201)
+@router.post("", response_model=SupplierOut, status_code=201, dependencies=[Depends(get_current_user)])
 def create_supplier(payload: SupplierCreate, db: Session = Depends(get_db)):
     supplier = Supplier(**payload.model_dump())
     db.add(supplier)
@@ -37,7 +38,7 @@ def create_supplier(payload: SupplierCreate, db: Session = Depends(get_db)):
     return supplier
 
 
-@router.delete("/{supplier_id}", status_code=204)
+@router.delete("/{supplier_id}", status_code=204, dependencies=[Depends(get_current_user)])
 def delete_supplier(supplier_id: int, db: Session = Depends(get_db)):
     supplier = db.get(Supplier, supplier_id)
     if supplier is None:

@@ -138,6 +138,23 @@ STREET_NAMES = [
 ]
 EMAIL_DOMAINS = ["gmail.com", "outlook.com", "bizmail.com", "corpmail.com", "yourbiz.com"]
 
+NUM_QUOTES = 24
+NUM_SUPPORT_TICKETS = 20
+SUPPORT_SUBJECTS = [
+    "Delayed shipment on recent order",
+    "Need bulk pricing for an upcoming project",
+    "Invoice discrepancy on last invoice",
+    "Product arrived damaged",
+    "Question about warranty coverage",
+    "Request for updated product catalog",
+    "Unable to download invoice PDF",
+    "Change delivery address for a pending order",
+    "Follow-up on a quote request",
+    "Account details need updating",
+    "Return / exchange request",
+    "Payment confirmation not received",
+]
+
 STATUS_CREATED_AT_DAYS_AGO = {
     OrderStatus.PENDING: (0, 5),
     OrderStatus.PROCESSING: (2, 12),
@@ -157,6 +174,7 @@ class ProductInfo(NamedTuple):
 class CustomerInfo(NamedTuple):
     id: int
     name: str
+    email: str
 
 
 def slugify(name: str) -> str:
@@ -230,7 +248,7 @@ def seed_customers(db) -> list[CustomerInfo]:
         db.add(customer)
         customers.append(customer)
     db.commit()
-    return [CustomerInfo(id=c.id, name=c.name) for c in customers]
+    return [CustomerInfo(id=c.id, name=c.name, email=c.email) for c in customers]
 
 
 def seed_admin(db) -> None:
@@ -317,6 +335,80 @@ def seed_orders(client: TestClient, customers: list[CustomerInfo], orderable: li
     print(f"Placed {len(placed)}/{NUM_ORDERS} orders (some may be skipped if stock ran out).")
 
 
+def seed_quotes(client: TestClient, customers: list[CustomerInfo], orderable: list[ProductInfo], admin_headers: dict) -> None:
+    """Requests, prices, converts, and rejects quotes against real customers
+    and products so the admin/client Quotes screens have a realistic status
+    mix instead of sitting empty. Quotes don't touch stock (they're
+    speculative), so this doesn't need the stock tracker seed_orders uses."""
+    quote_ids = []
+    for _ in range(NUM_QUOTES):
+        customer = random.choice(customers)
+        products = random.sample(orderable, k=random.randint(1, 3))
+        items = [{"product_id": p.id, "quantity": random.randint(1, 5)} for p in products]
+        resp = client.post(
+            "/quotes", json={"customer_name": customer.name, "customer_id": customer.id, "items": items}
+        )
+        resp.raise_for_status()
+        quote_ids.append(resp.json()["id"])
+
+    prices_by_product = {p.id: p.price for p in orderable}
+    random.shuffle(quote_ids)
+    priced = quote_ids[: int(len(quote_ids) * 0.7)]
+    for quote_id in priced:
+        quote = client.get(f"/quotes/{quote_id}").json()
+        price_items = [
+            {
+                "product_id": item["product_id"],
+                "quoted_unit_price": round(prices_by_product[item["product_id"]] * random.uniform(0.85, 1.05), 2),
+            }
+            for item in quote["items"]
+        ]
+        client.patch(f"/quotes/{quote_id}/price", json={"items": price_items}, headers=admin_headers).raise_for_status()
+
+    # Stock has already been drawn down by seed_orders, so a convert can
+    # legitimately fail oversell prevention here — that's the real check
+    # working as intended, not a bug; just skip it and leave the quote
+    # "quoted" rather than crashing the whole seed run.
+    to_convert = priced[: int(len(priced) * 0.5)]
+    to_reject = priced[len(to_convert) : len(to_convert) + int(len(priced) * 0.15)]
+    converted = 0
+    for quote_id in to_convert:
+        if client.post(f"/quotes/{quote_id}/convert").status_code == 200:
+            converted += 1
+    rejected = 0
+    for quote_id in to_reject:
+        if client.post(f"/quotes/{quote_id}/reject", headers=admin_headers).status_code == 200:
+            rejected += 1
+
+    print(f"Seeded {len(quote_ids)} quotes ({converted} converted, {rejected} rejected).")
+
+
+def seed_support_tickets(client: TestClient, customers: list[CustomerInfo]) -> None:
+    ticket_ids = []
+    for _ in range(NUM_SUPPORT_TICKETS):
+        customer = random.choice(customers)
+        subject = random.choice(SUPPORT_SUBJECTS)
+        resp = client.post(
+            "/support",
+            json={
+                "customer_name": customer.name,
+                "customer_id": customer.id,
+                "email": customer.email,
+                "subject": subject,
+                "message": f"Hi, following up on: {subject.lower()}. Could someone from your team assist? Thanks, {customer.name}.",
+            },
+        )
+        resp.raise_for_status()
+        ticket_ids.append(resp.json()["id"])
+
+    random.shuffle(ticket_ids)
+    to_close = ticket_ids[: int(len(ticket_ids) * 0.4)]
+    for ticket_id in to_close:
+        client.post(f"/support/{ticket_id}/close").raise_for_status()
+
+    print(f"Seeded {len(ticket_ids)} support tickets ({len(to_close)} closed).")
+
+
 def print_summary(db) -> None:
     from sqlalchemy import func, select
 
@@ -363,6 +455,12 @@ def main():
 
     client = TestClient(app)
     seed_orders(client, customers, orderable)
+
+    admin_resp = client.post("/auth/login", json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD})
+    admin_resp.raise_for_status()
+    admin_headers = {"Authorization": f"Bearer {admin_resp.json()['access_token']}"}
+    seed_quotes(client, customers, orderable, admin_headers)
+    seed_support_tickets(client, customers)
 
     db = SessionLocal()
     try:

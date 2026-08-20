@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
+from app.auth import get_current_user
 from app.database import get_db
 from app.models import Order, OrderItem, OrderStatus, Product, Quote, QuoteItem, QuoteStatus
 from app.schemas import QuoteCreate, QuoteItemOut, QuoteOut, QuotePriceUpdate
@@ -88,7 +89,7 @@ def get_quote(quote_id: int, db: Session = Depends(get_db)):
     return _serialize(_get_or_404(db, quote_id))
 
 
-@router.patch("/{quote_id}/price", response_model=QuoteOut)
+@router.patch("/{quote_id}/price", response_model=QuoteOut, dependencies=[Depends(get_current_user)])
 def price_quote(quote_id: int, payload: QuotePriceUpdate, db: Session = Depends(get_db)):
     quote = _get_or_404(db, quote_id)
     if quote.status != QuoteStatus.REQUESTED:
@@ -107,7 +108,7 @@ def price_quote(quote_id: int, payload: QuotePriceUpdate, db: Session = Depends(
     return _serialize(_get_or_404(db, quote_id))
 
 
-@router.post("/{quote_id}/reject", response_model=QuoteOut)
+@router.post("/{quote_id}/reject", response_model=QuoteOut, dependencies=[Depends(get_current_user)])
 def reject_quote(quote_id: int, db: Session = Depends(get_db)):
     quote = _get_or_404(db, quote_id)
     if quote.status not in (QuoteStatus.REQUESTED, QuoteStatus.QUOTED):
