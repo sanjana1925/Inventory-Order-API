@@ -53,8 +53,7 @@ categories, and suppliers; the whole purchase-orders and reports routers;
 quote pricing/rejection; order status updates; and user list/delete/password-change.
 `POST /users` stays open on purpose — it's the bootstrap path for creating the
 first admin account (see "Running" below). Customer-facing endpoints (orders,
-quotes, support, addresses, profile) are not gated by customer identity — see
-"Known limitations".
+quotes, support, addresses, profile) are not gated by customer identity.
 
 ## Payments
 
@@ -64,7 +63,7 @@ subtotal threshold) at order time, stored on the order alongside a
 `payment_status` of `unpaid`. `POST /orders/{id}/pay` flips it to `paid` (no
 real money moves, no double-pay). Emails/SMS that would normally follow order
 placement, status changes, and payment are only printed to the console
-(`app/notifications_channel.py`) — see "Known limitations".
+(`app/notifications_channel.py`).
 
 ## Oversell prevention
 
@@ -173,28 +172,6 @@ See `frontend/README.md` for setup.
   invalid order-status transition, deleting a product still referenced by an
   order/quote/purchase-order, a duplicate email/code, etc.
 - `404` — an id-based lookup where the id doesn't exist.
-
-## Known limitations
-
-This is a local demo, not a production deployment:
-
-- **Only staff/admin actions are server-side authorized.** Customer-facing
-  endpoints (placing orders, requesting quotes, managing addresses/profile)
-  are not gated by the caller's identity — any customer token (or none at
-  all, for endpoints that don't even check) can act on any `customer_id`.
-  This was a deliberate scope decision to keep the auth layer simple and
-  explainable rather than fully airtight; see "Authentication" above for
-  exactly what *is* gated.
-- No rate limiting or lockout on the login endpoints.
-- Plain HTTP, no TLS (fine for `localhost`).
-- **No real payment gateway.** `POST /orders/{id}/pay` simulates a successful
-  payment — no Stripe/Razorpay integration, no card details collected.
-- **No real email/SMS delivery.** `app/notifications_channel.py` prints what
-  would be sent instead of calling a provider.
-- `products.category` is a denormalized string, not a foreign key to
-  `categories` — deleting a category doesn't touch existing products, and a
-  product's category can reference a name that isn't (or is no longer) in the
-  `categories` table.
 
 ## Running
 
