@@ -152,6 +152,20 @@ Routes split by role (`frontend/src/App.jsx`), matching the endpoint groups abov
 
 See `frontend/README.md` for setup.
 
+## Screenshots
+
+**Admin**
+
+| Dashboard | Products | Orders |
+|---|---|---|
+| ![Admin dashboard](docs/screenshots/admin-dashboard.png) | ![Admin products](docs/screenshots/admin-products.png) | ![Admin orders](docs/screenshots/admin-orders.png) |
+
+**Business client**
+
+| Catalog | My Orders |
+|---|---|
+| ![Client catalog](docs/screenshots/client-catalog.png) | ![Client orders](docs/screenshots/client-orders.png) |
+
 ## Errors
 
 - `422` — malformed input (bad types, negative price/qty). Handled by Pydantic.

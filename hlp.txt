@@ -1,0 +1,34 @@
+Inventory & Order Management API — Quick Help
+================================================
+
+Setup (first time)
+-------------------
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python scripts/seed.py            # or scripts/seed_big_dataset.py for more sample data
+
+Run
+---
+Option A (one command, opens two windows):
+  powershell -File run.ps1
+
+Option B (manual, two terminals):
+  uvicorn app.main:app --reload               # API on http://127.0.0.1:8000
+  cd frontend && npm install && npm run dev   # UI on http://localhost:5173
+
+Useful URLs
+-----------
+API docs (Swagger):  http://127.0.0.1:8000/docs
+Frontend app:        http://localhost:5173
+
+Default admin login (only if seeded via scripts/seed_big_dataset.py)
+----------------------------------------------------------------------
+email:    admin@inventory.com
+password: admin123
+
+Tests
+-----
+pytest
+
+See README.md for full endpoint list, schema, and known limitations.
