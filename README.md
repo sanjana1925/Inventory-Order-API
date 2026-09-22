@@ -14,7 +14,7 @@ admins manage inventory, suppliers and procurement.
 | 🧾 PDF Invoices | Generates an order invoice on demand | fpdf2 |
 | ⚛️ Admin/Client Portal | Role-based SPA, hooks only, no TypeScript | React + Tailwind |
 
-![Architecture diagram](docs/architecture.svg)
+![Architecture diagram](architecture.svg)
 *React SPA → FastAPI routers (JWT-gated for staff) → business-rule checks → SQLAlchemy/SQLite, with invoicing and notifications fanning out from order events.*
 
 <br>
