@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 900" font-family="'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1080" height="900" fill="#ffffff"/>
+
+  <!-- Lane backgrounds -->
+  <rect x="0" y="40" width="340" height="860" fill="#eff6ff"/>
+  <rect x="340" y="40" width="380" height="860" fill="#f8fafc"/>
+  <rect x="720" y="40" width="360" height="860" fill="#faf5ff"/>
+  <line x1="340" y1="0" x2="340" y2="900" stroke="#cbd5e1" stroke-width="1"/>
+  <line x1="720" y1="0" x2="720" y2="900" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- Lane headers -->
+  <rect x="0" y="0" width="340" height="40" fill="#bfdbfe"/>
+  <rect x="340" y="0" width="380" height="40" fill="#e2e8f0"/>
+  <rect x="720" y="0" width="360" height="40" fill="#e9d5ff"/>
+  <text x="170" y="26" text-anchor="middle" font-size="16" font-weight="700" fill="#1e3a8a">👤 CLIENT</text>
+  <text x="530" y="26" text-anchor="middle" font-size="16" font-weight="700" fill="#334155">⚙️ SYSTEM (automatic)</text>
+  <text x="900" y="26" text-anchor="middle" font-size="16" font-weight="700" fill="#581c87">🏢 OWNER / STAFF</text>
+
+  <!-- CLIENT boxes -->
+  <rect x="20" y="60" width="300" height="56" rx="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+  <text x="170" y="82" text-anchor="middle" font-size="13" font-weight="600" fill="#1e3a8a">Browses the catalog</text>
+  <text x="170" y="100" text-anchor="middle" font-size="11" fill="#1e40af">GET /products (filter, sort)</text>
+
+  <rect x="20" y="150" width="300" height="64" rx="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+  <text x="170" y="172" text-anchor="middle" font-size="13" font-weight="600" fill="#1e3a8a">Places an order</text>
+  <text x="170" y="190" text-anchor="middle" font-size="11" fill="#1e40af">POST /orders — multiple lines</text>
+  <text x="170" y="204" text-anchor="middle" font-size="10" fill="#3b82f6">duplicate lines summed first</text>
+
+  <rect x="20" y="250" width="300" height="64" rx="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+  <text x="170" y="272" text-anchor="middle" font-size="13" font-weight="600" fill="#1e3a8a">…or requests a quote first</text>
+  <text x="170" y="290" text-anchor="middle" font-size="11" fill="#1e40af">POST /quotes</text>
+  <text x="170" y="304" text-anchor="middle" font-size="10" fill="#3b82f6">speculative — no stock check yet</text>
+
+  <rect x="20" y="430" width="300" height="64" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="170" y="452" text-anchor="middle" font-size="13" font-weight="600" fill="#991b1b">Order rejected — 400</text>
+  <text x="170" y="470" text-anchor="middle" font-size="11" fill="#991b1b">nothing written, stock untouched</text>
+  <text x="170" y="484" text-anchor="middle" font-size="10" fill="#b91c1c">adjusts quantities and retries</text>
+
+  <rect x="20" y="560" width="300" height="70" rx="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+  <text x="170" y="584" text-anchor="middle" font-size="13" font-weight="600" fill="#1e3a8a">Pays for the order</text>
+  <text x="170" y="602" text-anchor="middle" font-size="11" fill="#1e40af">POST /orders/{id}/pay</text>
+  <text x="170" y="617" text-anchor="middle" font-size="10" fill="#3b82f6">unpaid → paid (simulated)</text>
+
+  <rect x="20" y="670" width="300" height="60" rx="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+  <text x="170" y="694" text-anchor="middle" font-size="13" font-weight="600" fill="#1e3a8a">Downloads the invoice</text>
+  <text x="170" y="712" text-anchor="middle" font-size="11" fill="#1e40af">GET /orders/{id}/invoice → PDF</text>
+
+  <!-- OWNER boxes -->
+  <rect x="740" y="60" width="320" height="60" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="900" y="84" text-anchor="middle" font-size="13" font-weight="600" fill="#4c1d95">Orders stock from a supplier</text>
+  <text x="900" y="102" text-anchor="middle" font-size="11" fill="#5b21b6">POST /purchase-orders</text>
+
+  <rect x="740" y="150" width="320" height="60" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="900" y="174" text-anchor="middle" font-size="13" font-weight="600" fill="#4c1d95">Receives the shipment</text>
+  <text x="900" y="192" text-anchor="middle" font-size="11" fill="#5b21b6">POST /purchase-orders/{id}/receive</text>
+
+  <rect x="740" y="250" width="320" height="64" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="900" y="272" text-anchor="middle" font-size="13" font-weight="600" fill="#4c1d95">Prices the quote</text>
+  <text x="900" y="290" text-anchor="middle" font-size="11" fill="#5b21b6">PATCH /quotes/{id}/price → quoted</text>
+
+  <rect x="740" y="340" width="320" height="64" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="900" y="362" text-anchor="middle" font-size="13" font-weight="600" fill="#4c1d95">Converts quote to order</text>
+  <text x="900" y="380" text-anchor="middle" font-size="11" fill="#5b21b6">POST /quotes/{id}/convert</text>
+  <text x="900" y="394" text-anchor="middle" font-size="10" fill="#6d28d9">locks in the negotiated price</text>
+
+  <rect x="740" y="560" width="320" height="100" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="900" y="584" text-anchor="middle" font-size="13" font-weight="600" fill="#4c1d95">Moves the order along</text>
+  <text x="900" y="602" text-anchor="middle" font-size="11" fill="#5b21b6">pending → processing → shipped → delivered</text>
+  <text x="900" y="618" text-anchor="middle" font-size="10" fill="#6d28d9">skipping a step is rejected server-side</text>
+  <text x="900" y="636" text-anchor="middle" font-size="10" fill="#dc2626">cancel (pending/processing) returns stock</text>
+
+  <!-- SYSTEM boxes -->
+  <rect x="360" y="150" width="340" height="64" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="530" y="172" text-anchor="middle" font-size="13" font-weight="600" fill="#14532d">Stock replenished</text>
+  <text x="530" y="190" text-anchor="middle" font-size="11" fill="#166534">stock_qty += quantity, one atomic UPDATE</text>
+  <text x="530" y="204" text-anchor="middle" font-size="10" fill="#16a34a">receiving twice is rejected</text>
+
+  <polygon points="530,385 700,445 530,505 360,445" fill="#ffedd5" stroke="#ea580c" stroke-width="2"/>
+  <text x="530" y="440" text-anchor="middle" font-size="12" font-weight="600" fill="#9a3412">Enough stock</text>
+  <text x="530" y="456" text-anchor="middle" font-size="12" font-weight="600" fill="#9a3412">for every line?</text>
+
+  <rect x="360" y="520" width="340" height="64" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="530" y="544" text-anchor="middle" font-size="13" font-weight="600" fill="#14532d">Order is created</text>
+  <text x="530" y="562" text-anchor="middle" font-size="11" fill="#166534">status: pending · stock decremented</text>
+  <text x="530" y="576" text-anchor="middle" font-size="10" fill="#16a34a">for every line, in one transaction</text>
+
+  <rect x="360" y="670" width="340" height="70" rx="10" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+  <text x="530" y="694" text-anchor="middle" font-size="13" font-weight="600" fill="#1e293b">Notification + invoice fire</text>
+  <text x="530" y="712" text-anchor="middle" font-size="11" fill="#334155">notify() → console-printed email/SMS</text>
+  <text x="530" y="727" text-anchor="middle" font-size="10" fill="#475569">on create, status change, and payment</text>
+
+  <!-- Arrows -->
+  <line x1="170" y1="116" x2="170" y2="150" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M 250,116 C 310,180 310,220 250,250" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <path d="M 320,190 C 400,280 400,380 362,440" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="320" y1="282" x2="740" y2="282" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="900" y1="314" x2="900" y2="340" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M 740,372 C 660,400 620,420 698,443" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <line x1="360" y1="445" x2="322" y2="460" stroke="#dc2626" stroke-width="2" marker-end="url(#arrowRed)"/>
+  <text x="345" y="435" text-anchor="middle" font-size="10" fill="#dc2626">no</text>
+
+  <line x1="530" y1="505" x2="530" y2="520" stroke="#16a34a" stroke-width="2" marker-end="url(#arrowGreen)"/>
+  <text x="548" y="516" font-size="10" fill="#16a34a">yes</text>
+
+  <path d="M 700,552 C 715,565 720,575 740,588" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M 360,552 C 345,565 335,575 322,588" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="530" y1="584" x2="530" y2="670" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <path d="M 900,560 C 760,500 620,540 604,548" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#arrowRed)"/>
+  <text x="770" y="500" text-anchor="middle" font-size="10" fill="#dc2626">cancel → quantity restored</text>
+
+  <path d="M 360,705 C 345,705 335,703 322,700" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <line x1="900" y1="120" x2="900" y2="150" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="740" y1="180" x2="702" y2="182" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <path d="M 530,214 C 530,280 530,330 530,383" fill="none" stroke="#16a34a" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#arrowGreen)"/>
+  <text x="620" y="300" text-anchor="middle" font-size="10" fill="#16a34a">replenishes the stock pool</text>
+</svg>
