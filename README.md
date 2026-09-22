@@ -1,10 +1,7 @@
-<div align="center">
+# 📦 Inventory & Order Management API
 
-# 📦 Inventory & Order Management 
-
-A B2B ordering system where clients browse, quote, and order, while admins manage inventory, suppliers, and procurement.
-
-</div>
+A B2B ordering: clients browse, quote, and order;
+admins manage inventory, suppliers and procurement.
 
 ## ✨ Key Features
 
@@ -17,14 +14,7 @@ A B2B ordering system where clients browse, quote, and order, while admins manag
 | 🧾 PDF Invoices | Generates an order invoice on demand | fpdf2 |
 | ⚛️ Admin/Client Portal | Role-based SPA, hooks only, no TypeScript | React + Tailwind |
 
-<br>
-
-## 🏗️ Architecture
-
-<br>
-
-![Architecture diagram](architecture.svg)
-
+![Architecture diagram](docs/architecture.svg)
 *React SPA → FastAPI routers (JWT-gated for staff) → business-rule checks → SQLAlchemy/SQLite, with invoicing and notifications fanning out from order events.*
 
 <br>
