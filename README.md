@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📦 Inventory & Order Management API
+# 📦 Inventory & Order Management 
 
 A B2B ordering system where clients browse, quote, and order, while admins manage inventory, suppliers, and procurement.
 
