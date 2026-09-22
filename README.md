@@ -1,7 +1,10 @@
+<div align="center">
+
 # 📦 Inventory & Order Management API
 
-A B2B ordering: clients browse, quote, and order;
-admins manage inventory, suppliers and procurement.
+A B2B ordering system where clients browse, quote, and order, while admins manage inventory, suppliers, and procurement.
+
+</div>
 
 ## ✨ Key Features
 
